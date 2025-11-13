@@ -1,0 +1,59 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Configurações PHP
+    php_value output_buffering On
+    php_value memory_limit 256M
+    php_value max_execution_time 120
+
+    # 1. Redireciona raiz para default.php
+    RewriteRule ^$ default.php [L]
+
+    # 2. Remove .php INTERNAMENTE (Para URLs limpas)
+    # Esta regra geralmente não quebra POST e se aplica a ambos os projetos.
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}\.php -f
+    RewriteRule ^(.*?)/?$ $1.php [L]
+
+    # 3. Redireciona URLs COM .php para versão limpa (EXTERNAMENTE)
+    # CONDIÇÕES:
+    # - NÃO fazer se for um método POST
+    # - NÃO fazer se a URL começar com /cardapio_auto/ (para não quebrar POST lá)
+    # - NÃO fazer se for a API específica do cardápio (já estava)
+    RewriteCond %{REQUEST_METHOD} !POST [NC]
+    RewriteCond %{REQUEST_URI} !^/cardapio_auto/ [NC] # <-- NÃO aplicar dentro de cardapio_auto
+    RewriteCond %{THE_REQUEST} \s/+(.*?)\.php[\s?] [NC]
+    # A condição da API específica pode ser redundante agora, mas não faz mal mantê-la:
+    # RewriteCond %{REQUEST_URI} !/cardapio_auto/api_calculator\.php$ [NC]
+    RewriteRule ^ %1 [R=301,L,NE]
+
+    # 4. Remove barra final (EXTERNAMENTE)
+    # CONDIÇÕES:
+    # - NÃO fazer se for um método POST
+    # - NÃO fazer se a requisição for para um diretório existente
+    # - NÃO fazer se a URL começar com /cardapio_auto/ (para não quebrar POST lá)
+    # - NÃO fazer se for a API específica do cardápio (já estava)
+    RewriteCond %{REQUEST_METHOD} !POST [NC]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/cardapio_auto/ [NC] # <-- NÃO aplicar dentro de cardapio_auto
+    # A condição da API específica pode ser redundante agora, mas não faz mal mantê-la:
+    # RewriteCond %{REQUEST_URI} !^/cardapio_auto/api_calculator/?$ [NC]
+    RewriteRule ^(.*)/$ /$1 [R=301,L]
+
+</IfModule>
+
+# Força arquivos sem extensão a serem tratados como PHP
+# Mantenha como está, pois pode ser necessário para o Love Chat ou URLs limpas.
+<FilesMatch "^[^\.]+$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+# Cabeçalhos CORS
+# Mantenha como está, se aplica a todos os .php.
+<IfModule mod_headers.c>
+    <FilesMatch "\.php$">
+        Header set Access-Control-Allow-Origin "*"
+        Header set Access-Control-Allow-Methods "POST, GET, OPTIONS"
+        Header set Access-Control-Allow-Headers "Content-Type, X-Requested-With"
+    </FilesMatch>
+</IfModule>

@@ -1,0 +1,28 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Configurações PHP
+    php_value output_buffering On
+    php_value memory_limit 256M
+    php_value max_execution_time 120
+    
+    # 1. Remove .php das URLs (funciona com/sem barra)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}\.php -f
+    RewriteRule ^(.*?)/?$ $1.php [L]
+    
+    # 2. Redireciona URLs com .php para versão limpa
+    RewriteCond %{THE_REQUEST} \s/+(.*?)\.php[\s?] [NC]
+    RewriteRule ^ %1 [R=301,L,NE]
+    
+    # 3. Remove barra final
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)/$ /$1 [R=301,L]
+    
+    # 4. Redireciona raiz para login
+    RewriteRule ^$ login [L]
+</IfModule>
+
+<FilesMatch "^[^\.]+$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
