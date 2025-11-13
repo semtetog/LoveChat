@@ -526,7 +526,7 @@
         <header class="hero">
             <img src="https://i.ibb.co/gbZf3dY6/love-chat.webp" alt="Logo Love Chat" class="logo">
             <h1 class="headline">
-    <span class="headline-main">Ganhe até <span class="highlight">R$3.000,00 POR DIA</span>
+    <span class="headline-main">Ganhe até <span class="highlight">R$5.000,00 POR DIA</span>
     
     <span class="headline-sub">com Inteligência Artificial</span>
     <span class="headline-sub">pelo WhatsApp de forma automática!</span>
